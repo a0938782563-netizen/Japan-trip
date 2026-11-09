@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>東京冒險任務 11/17–11/26</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--text:#1d2333;--sub:#667088;--line:#dfe4f0;--acc:#e8452c;--boss:#fff2d6;--bossb:#f2a900;--ok:#2fa866;--hd:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151f;--card:#1c2132;--text:#eef1fa;--sub:#9aa4bf;--line:#2b3250;--acc:#ff6b52;--boss:#3a2f12;--bossb:#f2b933;--ok:#4cd08a;--hd:#12151f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12151f;--card:#1c2132;--text:#eef1fa;--sub:#9aa4bf;--line:#2b3250;--acc:#ff6b52;--boss:#3a2f12;--bossb:#f2b933;--ok:#4cd08a;--hd:#12151f;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,"PingFang TC","Noto Sans TC",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--hd);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--hd);z-index:9;padding:10px 14px 0;border-bottom:1px solid var(--line)}
+h1{font-size:18px;margin:0 0 6px}
+.xp{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.xp i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--bossb));transition:width .3s}
+.xpt{font-size:12px;color:var(--sub);margin:3px 0 6px}
+nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px}
+nav button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;padding:5px 10px;font-size:13px;line-height:1.2}
+nav button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+main{padding:14px;max-width:640px;margin:0 auto}
+.day{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.lv{font-size:12px;color:var(--acc);font-weight:700;letter-spacing:.05em}
+.day h2{margin:2px 0 4px;font-size:21px}
+.hotel{font-size:13px;color:var(--sub);margin-bottom:10px}
+.q{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:12px;margin-top:8px;cursor:pointer}
+.q.boss{background:var(--boss);border-color:var(--bossb)}
+.q input{margin-top:4px;width:20px;height:20px;accent-color:var(--ok);flex:none}
+.t{font-size:12px;color:var(--sub)}
+.q.done .x{text-decoration:line-through;opacity:.55}
+.b{font-size:11px;background:var(--bossb);color:#222;border-radius:6px;padding:1px 6px;margin-left:6px;font-weight:700}
+.nv{display:flex;justify-content:space-between;margin-top:14px}
+.nv button{border:0;background:var(--acc);color:#fff;border-radius:12px;padding:9px 16px;font-size:15px}
+.nv button:disabled{opacity:.3}
+.win{display:none;text-align:center;margin-top:10px;font-weight:700;color:var(--ok)}
+</style>
+</head>
+<body>
+<header>
+<h1>🗾 東京冒險任務　11/17–11/26</h1>
+<div class="xp"><i id="bar"></i></div>
+<div class="xpt" id="xpt"></div>
+<nav id="nav"></nav>
+</header>
+<main><div id="app"></div></main>
+<script>
+var D=[
+{d:"11/17 (二)",n:"抵達關卡",h:"🏨 DOMO HOTEL 東新宿",q:[["19:35","抵達成田機場"],["20:40","搭 Skyliner 進市區"],["22:30","飯店自助入住（務必先索取密碼！）",1],["22:45","新宿一蘭拉麵宵夜"]]},
+{d:"11/18 (三)",n:"池袋・新宿探索",h:"🏨 DOMO HOTEL 東新宿",q:[["08:35","出門往池袋吃早餐"],["10:00","池袋寶可夢中心快閃"],["12:00","新宿歌舞伎町午餐"],["14:00","新宿御苑（已買票，16:30 閉園）",1],["18:30","銀座八芳 新宿店：帝王蟹和牛吃到飽 🦀"]]},
+{d:"11/19 (四)",n:"澀谷大冒險",h:"🏨 今晚入住 HOTEL I/S 橫濱",q:[["08:35","退房、推行李往澀谷"],["09:05","澀谷站 B2 寄放行李"],["午餐","澀谷街頭、十字路口、AFURI 道玄坂店"],["下午","PARCO（寶可夢＋任天堂）、MEGA 唐吉訶德澀谷本店"],["甜點","幸福鬆餅、TUMUGI 生乳霜淇淋、Sweet Box Crepes、MIYASHITA CAFE"],["18:40","SHIBUYA SKY（已搶到票）",1],["20:00","取行李，搭車赴橫濱入住"]]},
+{d:"11/20 (五)",n:"藤子・鎌倉之旅",h:"🏨 HOTEL I/S 橫濱",q:[["08:35","出門往登戶站"],["10:00","藤子・F・不二雄博物館（已買票）",1],["12:30","搭車往鎌倉：大佛、高校前平交道夕陽"],["17:00","回橫濱晚餐"],["20:30","山下公園散步，看海港夜景"]]},
+{d:"11/21 (六)",n:"東京巨蛋城日",h:"🏨 HOTEL I/S 橫濱",q:[["08:30","搭 JR 回東京市區"],["09:55","小石川後樂園散步"],["11:10","Sushi Edo Fuji 午餐"],["12:35","東京巨蛋城遊樂園（至 18:00，已買票）",1],["19:30","回橫濱飯店"]]},
+{d:"11/22 (日)",n:"秋葉原・銀座",h:"🏨 今晚入住 Rembrandt Style 西葛西",q:[["08:30","退房、推行李往西葛西"],["09:45","西葛西飯店寄放行李"],["10:25","秋葉原逛街；午餐 Kushiyaki Bistro Fukumimi 銀座"],["14:15","銀座逛街、資生堂 Parlour 下午茶"],["17:30","銀座悠閒晚餐（至 20:30）"],["晚上","回西葛西入住"]]},
+{d:"11/23 (一)",n:"淺草・晴空塔",h:"🏨 Rembrandt Style 西葛西",q:[["08:35","出門往淺草吃早餐"],["10:00","雷門、仲見世通、淺草寺；午餐馬菜 銀座本店"],["14:00","晴空街道逛街（寶可夢中心）"],["16:00","晴空塔展望台報到登塔（16:29 前，賞夕陽與夜景）",1],["晚上","晚餐後回飯店"]]},
+{d:"11/24 (二)",n:"迪士尼 BOSS 日",h:"🏨 Rembrandt Style 西葛西",q:[["08:35","從西葛西搭計程車（約 15 分）直奔舞濱"],["09:00","東京迪士尼 Resort 暢玩（至 21:00）",1],["入園後","過閘門立刻用 App 搶 DPA 快速通關！"],["21:30","回飯店"]]},
+{d:"11/25 (三)",n:"teamLab・台場",h:"🏨 Rembrandt Style 西葛西",q:[["08:35","出門往豐洲"],["09:30","teamLab Planets（已買票，10:00 前一定要進場）",1],["午餐","台場午餐"],["13:00","TOKYO JOYPOLIS（至 15:30，需買票）",1],["15:30","台場自由女神看夕陽、百貨晚餐"],["晚上","回飯店"]]},
+{d:"11/26 (四)",n:"返航關卡",h:"✈️ 成田機場",q:[["09:35","退房、推行李往機場"],["10:50","抵達成田寄放行李、吃早午餐"],["10:50","成田空港周邊活動（展望台、免稅採購，至 14:00）"],["登機前","登機前 3 小時辦手續，返家"]]}
+];
+var cur=0,st={},KEY="jpquest1";
+try{st=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){st={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+function total(){var n=0;D.forEach(function(d){n+=d.q.length});return n}
+function done(){var n=0;for(var k in st)if(st[k])n++;return n}
+function dayDone(i){return D[i].q.every(function(_,j){return st[i+"-"+j]})}
+function nav(){var h="";D.forEach(function(d,i){h+='<button class="'+(i==cur?"on":"")+'" onclick="go('+i+')">'+(dayDone(i)?"✅ ":"")+d.d.slice(0,5)+"</button>"});document.getElementById("nav").innerHTML=h}
+function xp(){var t=total(),c=done();document.getElementById("bar").style.width=(c/t*100)+"%";document.getElementById("xpt").textContent="經驗值 "+c+" / "+t+"　（打勾完成任務，一起升級！）"}
+function render(){var d=D[cur],h='<div class="day"><div class="lv">LEVEL '+(cur+1)+" / "+D.length+"　"+d.d+"</div><h2>"+d.n+'</h2><div class="hotel">'+d.h+"</div>";
+d.q.forEach(function(q,j){var k=cur+"-"+j,on=st[k];h+='<label class="q'+(q[2]?" boss":"")+(on?" done":"")+'"><input type="checkbox" '+(on?"checked":"")+' onchange="tg('+cur+","+j+',this.checked)"><div class="x"><div class="t">'+q[0]+(q[2]?'<span class="b">🎯 BOSS</span>':"")+"</div>"+q[1]+"</div></label>"});
+h+='<div class="win" id="win" style="display:'+(dayDone(cur)?"block":"none")+'">🎉 關卡通過！</div>';
+h+='<div class="nv"><button '+(cur?"":"disabled")+' onclick="go('+(cur-1)+')">← 上一天</button><button '+(cur<D.length-1?"":"disabled")+' onclick="go('+(cur+1)+')">下一天 →</button></div></div>';
+document.getElementById("app").innerHTML=h;nav();xp()}
+function tg(i,j,v){st[i+"-"+j]=v;save();render()}
+function go(i){cur=i;render();scrollTo(0,0)}
+render();
+</script>
+</body>
+</html>
