@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fff9f2">
+<meta name="description" content="10天日本旅行遊戲化任務卡：離線進度、BOSS任務、經驗值。">
+<title>日本旅行 Quest｜ChatGPT 示範版</title>
+<style>
+:root{--bg:#fff9f2;--card:#fff;--text:#29343f;--muted:#78828d;--accent:#e66757;--deep:#ac453c;--border:#f1e3d6;--gold:#d99b33;--green:#29836b}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top left,#fff0e8 0,transparent 42%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC",sans-serif;line-height:1.55;padding:0 0 max(24px,env(safe-area-inset-bottom))}
+main{max-width:710px;margin:auto;padding:22px 16px}
+header{display:flex;align-items:start;justify-content:space-between;gap:12px}
+.kicker{display:inline-block;letter-spacing:.13em;font-size:11px;font-weight:800;color:var(--deep);text-transform:uppercase}
+h1{font-size:clamp(29px,6vw,42px);line-height:1.2;margin:5px 0 10px;letter-spacing:-.03em}
+.sub{font-size:14px;color:var(--muted);margin:0}
+.pill{background:#fff;border:1px solid var(--border);padding:9px 11px;border-radius:30px;font-size:12px;color:var(--deep);font-weight:800;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--border);box-shadow:0 12px 32px rgba(77,50,33,.055);border-radius:22px;padding:18px;margin-top:18px}
+.statline{display:flex;justify-content:space-between;align-items:end;gap:12px}
+.statline b{font-size:26px;letter-spacing:-.04em}.statline small{color:var(--muted);font-size:12px}
+.bar{background:#f6e9df;border-radius:99px;overflow:hidden;height:12px;margin-top:12px}
+.bar span{height:100%;display:block;background:linear-gradient(90deg,var(--accent),#f1ad52);width:0;transition:width .3s}
+.daynav{display:flex;overflow:auto;gap:8px;padding:14px 1px 4px;scrollbar-width:thin}
+.daynav button{flex:0 0 auto;padding:9px 12px;border-radius:13px;background:#fff;border:1px solid var(--border);font-size:13px;color:var(--text);cursor:pointer}
+.daynav button.active{color:white;background:var(--accent);border-color:var(--accent)}
+button,input{font:inherit}
+button{cursor:pointer}
+.dayhead{display:flex;align-items:start;justify-content:space-between;gap:8px}
+h2{font-size:22px;margin:4px 0 2px}
+.hint{font-size:13px;color:var(--muted)}
+.task{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid #f4eee7}
+.task:last-child{border:0}
+.task.boss{background:#fff7e6;border:1px solid #fae0aa;border-radius:14px;margin-top:10px;padding:13px}
+.task input{accent-color:var(--green);width:21px;height:21px;flex:0 0 auto}
+.task label{flex:1;min-width:0;word-break:break-word}
+.task.done label{text-decoration:line-through;color:var(--muted)}
+.xp{color:var(--deep);font-size:12px;font-weight:800;white-space:nowrap}
+.boss .xp{color:#946014}
+.addbox{display:flex;gap:8px;margin-top:15px}
+.addbox input{min-width:0;flex:1;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff}
+.primary{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:11px 15px;font-weight:750}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.soft{color:var(--text);border:1px solid var(--border);background:white;border-radius:12px;padding:10px 12px;font-size:13px}
+.foot{font-size:12px;color:var(--muted);margin:16px 4px}
+.warning{background:#fff3dc;color:#855a1c;padding:12px;border-radius:14px;font-size:12px;margin-top:16px}
+#file{display:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header><div><span class="kicker">JAPAN TRIP · QUEST MODE</span><h1>日本旅行 Quest</h1><p class="sub">10 天旅行任務卡 · 2026/11/17–11/26</p></div><span class="pill">ChatGPT 示範版</span></header>
+<section class="card"><div class="statline"><div><small>旅行總經驗值</small><div><b id="xp">0</b><small> XP</small></div></div><div style="text-align:right"><small>任務完成率</small><div><b id="percent">0%</b></div></div></div><div class="bar" aria-label="旅行任務進度"><span id="bar"></span></div><p class="hint" id="donecount" style="margin-bottom:0"></p></section>
+<nav class="daynav" id="nav" aria-label="選擇旅行日期"></nav>
+<section class="card" style="margin-top:12px"><div class="dayhead"><div><span class="kicker" id="daylabel"></span><h2 id="daytitle"></h2><div class="hint" id="date"></div></div><span class="pill" id="daycount"></span></div><div id="tasks"></div><form id="addform" class="addbox"><input id="newtask" aria-label="新增旅行任務" placeholder="新增自己的任務…" maxlength="140" required><button class="primary" type="submit">＋ 新增</button></form></section>
+<section class="card"><span class="kicker">YOUR SAVE DATA</span><h2>旅行進度管理</h2><p class="hint">打勾後會自動保存在這台裝置的瀏覽器。也可以匯出備份、匯入已儲存的任務。沒有連接 Firebase，換裝置不會自動同步。</p><div class="toolbar"><button class="soft" id="export" type="button">↓ 匯出進度</button><button class="soft" id="import" type="button">↑ 匯入進度</button><button class="soft" id="reset" type="button">↺ 重設示範</button><input type="file" id="file" accept="application/json,.json"></div><p class="warning">示範行程並非你的真實預訂資訊。請以實際車票、營業時間和預約單為準。</p></section>
+<p class="foot">Made with ChatGPT · GitHub Pages 實驗版 · 不會修改原本的日本行程首頁</p>
+</main>
+<script>
+(function(){
+"use strict";
+var KEY="japan-quest-chatgpt-demo-v1";
+var titles=["抵達日本","東京探索","街道與小店","美食冒險","城市散策","文化體驗","自由行程","景點挑戰","伴手禮日","整理返程"];
+var samples=[
+["準備護照與交通資訊","確認住宿位置","整理隔日交通"],
+["查看今日天氣","確認景點交通","拍下今天最喜歡的風景"],
+["列出想去的店","確認交通末班時間","記錄一間喜歡的小店"],
+["確認用餐候位或預約","嘗試一種日本美食","記下今日美食第一名"],
+["選一條散步路線","補充水分與休息","整理今日照片"],
+["確認入場規定","體驗一項在地文化","寫下旅程心得"],
+["檢查今日待辦","安排自由探索時間","回顧任務進度"],
+["核對預約票券","準時前往行程地點","完成今日挑戰"],
+["列好購物清單","注意行李容量","整理收據與戰利品"],
+["檢查護照錢包","確認機場交通","收好旅途回憶"]
+];
+function fresh(){return titles.map(function(title,i){return {title:title,date:"11/"+(17+i),tasks:samples[i].map(function(t,j){return {id:"d"+i+"t"+j,text:t,done:false,xp:20,boss:false}}).concat([{id:"d"+i+"boss",text:"BOSS：完成第 "+(i+1)+" 天冒險",done:false,xp:60,boss:true}])};});}
+var state=fresh(),selected=0;
+try{var saved=JSON.parse(localStorage.getItem(KEY));if(valid(saved))state=saved;}catch(e){}
+function valid(v){return Array.isArray(v)&&v.length===10&&v.every(function(d){return d&&typeof d.title==="string"&&typeof d.date==="string"&&Array.isArray(d.tasks)&&d.tasks.length<100&&d.tasks.every(function(t){return t&&typeof t.id==="string"&&typeof t.text==="string"&&typeof t.done==="boolean"&&typeof t.xp==="number"&&typeof t.boss==="boolean";});});}
+function el(id){return document.getElementById(id);}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){alert("這個瀏覽器無法儲存資料，記得匯出備份。");}}
+function render(){
+var nav=el("nav");nav.replaceChildren();
+state.forEach(function(d,i){var b=document.createElement("button");b.textContent="Day "+(i+1)+" · "+d.date;b.type="button";if(i===selected)b.className="active";b.addEventListener("click",function(){selected=i;render();});nav.appendChild(b);});
+var d=state[selected];el("daylabel").textContent="DAY "+(selected+1);el("daytitle").textContent=d.title;el("date").textContent="2026 / "+d.date;
+var list=el("tasks");list.replaceChildren();
+d.tasks.forEach(function(t){var row=document.createElement("div");row.className="task"+(t.boss?" boss":"")+(t.done?" done":"");var cb=document.createElement("input");cb.type="checkbox";cb.checked=t.done;cb.id=t.id;var label=document.createElement("label");label.htmlFor=t.id;label.textContent=t.text;var xp=document.createElement("span");xp.className="xp";xp.textContent="+"+t.xp+" XP";cb.addEventListener("change",function(){t.done=cb.checked;save();render();});row.append(cb,label,xp);list.append(row);});
+var done=d.tasks.filter(function(t){return t.done;}).length;el("daycount").textContent=done+"/"+d.tasks.length+" 完成";
+var all=state.flatMap(function(x){return x.tasks;});var total=all.length;var finished=all.filter(function(x){return x.done;});var points=finished.reduce(function(sum,t){return sum+t.xp;},0);var pct=total?Math.round(finished.length/total*100):0;
+el("xp").textContent=points;el("percent").textContent=pct+"%";el("bar").style.width=pct+"%";el("donecount").textContent="已完成 "+finished.length+" / "+total+" 項任務 · BOSS 完成 "+finished.filter(function(t){return t.boss;}).length+" / 10";
+}
+el("addform").addEventListener("submit",function(e){e.preventDefault();var inp=el("newtask"),text=inp.value.trim();if(!text)return;state[selected].tasks.push({id:"user"+Date.now().toString(36)+Math.random().toString(36).slice(2),text:text,done:false,xp:20,boss:false});inp.value="";save();render();});
+el("reset").addEventListener("click",function(){if(confirm("確定清除這個示範版的所有任務紀錄嗎？")){state=fresh();selected=0;save();render();}});
+el("export").addEventListener("click",function(){var blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="japan-quest-backup.json";a.click();setTimeout(function(){URL.revokeObjectURL(url);},1000);});
+el("import").addEventListener("click",function(){el("file").click();});
+el("file").addEventListener("change",function(e){var f=e.target.files&&e.target.files[0];if(!f)return;var reader=new FileReader();reader.onload=function(){try{var parsed=JSON.parse(reader.result);if(!valid(parsed))throw Error();if(confirm("匯入會取代這個示範版的目前進度，確定嗎？")){state=parsed;save();render();alert("進度已匯入！");}}catch(err){alert("這不是有效的 Japan Quest 備份檔。");}el("file").value="";};reader.readAsText(f);});
+render();
+})();
+</script>
+</body>
+</html>
